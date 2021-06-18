@@ -3,7 +3,8 @@ package com.API.cotizador.controllers;
 
 import com.API.cotizador.models.AltaCotizacion;
 import com.API.cotizador.models.Autos;
-import com.API.cotizador.models.Cotizacion;
+import com.API.cotizador.models.ConsultaCotizacion;
+import com.API.cotizador.models.EntradaCotizacion;
 import com.API.cotizador.services.CotizadorService;
 import com.API.cotizador.services.RangosAutosService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,9 @@ public class CotizadorController {
     RangosAutosService rangosAutosService;
 
     @GetMapping("/cotizacion")
-    public Cotizacion getCotizacion(@RequestParam("id") Integer id,
-                                    @RequestParam("enganche") double enganche,
-                                    @RequestParam("meses") Integer meses){
+    public ConsultaCotizacion getCotizacion(@RequestParam("id") Integer id,
+                                            @RequestParam("enganche") double enganche,
+                                            @RequestParam("meses") Integer meses){
         Autos auto = this.rangosAutosService.buscarAutoId(id);
         return cotizadorService.calcularCotizacion(enganche, meses, auto);
     }
@@ -37,8 +38,9 @@ public class CotizadorController {
     }
 
     @PostMapping("/cotizacion")
-    public ResponseEntity agregarCotizacion(@RequestBody AltaCotizacion cotizacion){
-        cotizadorService.agregarCotizacion(cotizacion);
-        return new ResponseEntity("Cotizacion creada correctamente", HttpStatus.OK);
+    public ResponseEntity agregarCotizacion(@RequestBody EntradaCotizacion entradaCotizacion){
+        Autos auto=this.rangosAutosService.buscarAutoId(entradaCotizacion.getId());
+        cotizadorService.agregarCotizacion(entradaCotizacion,auto);
+        return new ResponseEntity("ConsultaCotizacion creada correctamente", HttpStatus.OK);
     }
 }

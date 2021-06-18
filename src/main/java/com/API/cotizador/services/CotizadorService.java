@@ -2,7 +2,8 @@ package com.API.cotizador.services;
 
 import com.API.cotizador.models.AltaCotizacion;
 import com.API.cotizador.models.Autos;
-import com.API.cotizador.models.Cotizacion;
+import com.API.cotizador.models.ConsultaCotizacion;
+import com.API.cotizador.models.EntradaCotizacion;
 import com.API.cotizador.repositories.CotizadorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -20,19 +21,32 @@ public class CotizadorService {
     @Autowired
     MongoOperations mongoOperations;
 
-    public Cotizacion calcularCotizacion(Double enganche, Integer meses, Autos auto){
-        Cotizacion cotizacion = new Cotizacion();
-        cotizacion.setCapital(auto.getPrecio() - enganche);
-        cotizacion.setIntereses(cotizacion.getCapital() * calcularTasaTotal(5.0, 11.0));
-        cotizacion.setTotal(cotizacion.getCapital()+cotizacion.getIntereses());
+    public ConsultaCotizacion calcularCotizacion(Double enganche, Integer meses, Autos auto){
+        ConsultaCotizacion cotizacion = new ConsultaCotizacion();
+        cotizacion.setCapital(redondeo(auto.getPrecio() - enganche));
+        cotizacion.setIntereses(redondeo(cotizacion.getCapital() * calcularTasaTotal(5.0, 11.0)));
+        cotizacion.setTotal(redondeo(cotizacion.getCapital()+cotizacion.getIntereses()));
         cotizacion.setMeses(meses);
-        cotizacion.setMensualidad(cotizacion.getTotal()/meses);
+        cotizacion.setMensualidad(redondeo(cotizacion.getTotal()/meses));
         cotizacion.setTasa(11);
 
         return cotizacion;
     }
 
-    public AltaCotizacion agregarCotizacion(AltaCotizacion cotizacion){
+    public AltaCotizacion agregarCotizacion(EntradaCotizacion entradaCotizacion, Autos auto){
+        AltaCotizacion cotizacion=new AltaCotizacion();
+        cotizacion.setNombre(entradaCotizacion.getNombre());
+        cotizacion.setMarca(auto.getMarca());
+        cotizacion.setModelo(auto.getModelo());
+        cotizacion.setAnno(auto.getAño());
+        cotizacion.setPrecio(auto.getPrecio());
+        cotizacion.setEnganche(entradaCotizacion.getEnganche());
+        cotizacion.setCapital(entradaCotizacion.getCapital());
+        cotizacion.setIntereses(entradaCotizacion.getIntereses());
+        cotizacion.setTotal(entradaCotizacion.getTotal());
+        cotizacion.setMeses(entradaCotizacion.getMeses());
+        cotizacion.setMensualidad(entradaCotizacion.getMensualidad());
+        cotizacion.setTasa(entradaCotizacion.getTasa());
         return this.cotizadorRepository.save(cotizacion);
     }
 
@@ -43,7 +57,12 @@ public class CotizadorService {
         return cotizaciones;
     }
 
+
+
     public Double calcularTasaTotal(Double años, Double tasa){
         return  (años * tasa)/100;
     }
+
+    public Double redondeo(Double cantidad){return Math.round(cantidad*100.0)/100.0;}
 }
+

@@ -1,6 +1,6 @@
 package com.API.cotizador.models;
 
-public class Cotizacion {
+public class ConsultaCotizacion {
     private  double capital;
     private  double intereses;
     private  double total;
